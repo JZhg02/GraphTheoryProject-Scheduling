@@ -10,4 +10,9 @@ public class Edge {
         this.duration = givenDuration;
     }
 
+    @Override
+    public String toString(){
+        return this.from+" -> "+this.to+" = "+this.duration;
+    }
+
 }
