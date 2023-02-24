@@ -2,7 +2,7 @@ public class Main {
     public static void main(String[] args){
 
         Graph graph = new Graph("file1.txt");
-        graph.showAdjacentMatrix();
+        System.out.println("Adjacent Matrix:\n"+graph);
 
     }
 }

@@ -89,7 +89,8 @@ public class Graph {
         return -1;
     }
 
-    public void showAdjacentMatrix(){
+    @Override
+    public String toString(){
         ArrayList<ArrayList<String>> matrix = new ArrayList<>();
         // Create first row
         ArrayList<String> firstRow = new ArrayList<>();
@@ -131,7 +132,7 @@ public class Graph {
             }
             strbld.append("\n");
         }
-        System.out.println("Adjacency Matrix:\n"+strbld);
+        return strbld.toString();
     }
 
 }
