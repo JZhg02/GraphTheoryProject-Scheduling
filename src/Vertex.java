@@ -6,6 +6,7 @@ public class Vertex {
     ArrayList<Edge> outgoingEdges = new ArrayList<>();
     ArrayList<Edge> incomingEdges = new ArrayList<>();
     int duration;
+    int rank;
 
     Vertex(String givenNumber, int givenDuration){
         this.number = givenNumber;
