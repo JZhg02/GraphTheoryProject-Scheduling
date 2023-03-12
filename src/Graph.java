@@ -155,6 +155,12 @@ public class Graph {
             rank++;
         }
 
+        if(!leftVerticesToCheck.isEmpty()){
+            System.out.println("Cycle present in the graph. \n");
+        } else {
+            System.out.println("No cycles detected, ranks were computed correctly. \n");
+        }
+
         // Reset the degrees of all the vertices
         computeDegrees();
 
