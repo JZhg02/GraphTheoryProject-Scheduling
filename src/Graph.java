@@ -106,9 +106,10 @@ public class Graph {
         }
         return -1;
     }
+
     public void computeDegrees(){
         for(Vertex vertex : vertices){
-            vertex.computeDegre();
+            vertex.computeDegree();
         }
     }
 
@@ -117,46 +118,44 @@ public class Graph {
         ArrayList<Vertex> sourceVertices = new ArrayList<>();
         ArrayList<Vertex> leftVerticesToCheck = new ArrayList<>(vertices);
 
-
+        // Adding alpha as it is the sole vertex in a scheduling graph to be rank 0
+        // sourceVertices are the vertices without predecessors
         sourceVertices.add(vertices.get(0));
         leftVerticesToCheck.remove(sourceVertices.get(0));
 
         while(!sourceVertices.isEmpty()){
 
+            // Assign the rank
             for(Vertex sourceVertex : sourceVertices ){
                 vertices.get(getVertexByNumber(Integer.parseInt(sourceVertex.number))).rank = rank;
             }
 
+            // For each vertex, remove by 1 the inDegree if they have a predecessor in sourceVertices
             for(Vertex leftVertex : leftVerticesToCheck){
                 for(Vertex sourceVertex : sourceVertices){
                     for(Edge edge : leftVertex.incomingEdges){
                         if(edge.from == sourceVertex){
-                            leftVertex.inDegre--;
-
-
+                            leftVertex.inDegree--;
                         }
-
                     }
-
                 }
             }
-
-
+            // Clearing the sourceVertices list to put the new vertices without predecessors
             sourceVertices.clear();
+
+            // Add vertices without predecessors to source and removing them from left list
             for(Vertex vertex : vertices){
-                // if the vertex indegre is equal to 0 and we haven't checked it yet, then we have to check it so we add
-                // it to the source list and delete it from the leftVertices list
-                if(vertex.inDegre == 0 && leftVerticesToCheck.contains(vertex)){
+                // If the vertex in-degree is equal to 0, and we haven't checked it yet, then we have to check it so,
+                // We add it to the source list and delete it from the leftVertices list
+                if(vertex.inDegree == 0 && leftVerticesToCheck.contains(vertex)){
                     sourceVertices.add(vertex);
                     leftVerticesToCheck.remove(vertex);
                 }
             }
-
             rank++;
+        }
 
-            }
-
-        // Reset the degres of all the vertices
+        // Reset the degrees of all the vertices
         computeDegrees();
 
         // Print the vertices for the smallest rank to the biggest
@@ -165,11 +164,8 @@ public class Graph {
                 if(vertex.rank == i){
                     System.out.println("Vertex " + vertex.number + " : rank -> " + vertex.rank);
                 }
-
             }
         }
-
-
     }
 
 

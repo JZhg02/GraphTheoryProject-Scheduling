@@ -4,9 +4,9 @@ public class Vertex {
 
     String number;
     ArrayList<Edge> outgoingEdges = new ArrayList<>();
-    int outDegre;
+    int outDegree;
     ArrayList<Edge> incomingEdges = new ArrayList<>();
-    int inDegre;
+    int inDegree;
     int duration;
     int rank;
 
@@ -15,10 +15,9 @@ public class Vertex {
         this.duration = givenDuration;
     }
 
-    public void computeDegre(){
-        inDegre = incomingEdges.size();
-        outDegre = outgoingEdges.size();
-
+    public void computeDegree(){
+        inDegree = incomingEdges.size();
+        outDegree = outgoingEdges.size();
     }
 
     @Override
