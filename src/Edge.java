@@ -1,4 +1,4 @@
-public class Edge {
+public class Edge implements Comparable<Edge> {
 
     Vertex from;
     Vertex to;
@@ -8,6 +8,12 @@ public class Edge {
         this.from = from;
         this.to = to;
         this.duration = givenDuration;
+    }
+
+    @Override
+    public int compareTo(Edge edgeToCompare){
+        int vertexNumber = Integer.parseInt(edgeToCompare.from.number);
+        return Integer.parseInt(from.number) - vertexNumber;
     }
 
     @Override

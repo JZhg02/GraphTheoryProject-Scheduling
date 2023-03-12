@@ -1,9 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 public class Graph {
 
@@ -42,6 +40,7 @@ public class Graph {
             // Initializes the edges
             while((line = reader.readLine()) != null){
                 String[] arr = line.split(" ");
+
                 // Add numbers starting from index 2 (basically, add predecessors to array predecessors)
                 ArrayList<String> predecessors = new ArrayList<>(Arrays.asList(arr).subList(2, arr.length));
                 if(predecessors.isEmpty()){
@@ -72,7 +71,15 @@ public class Graph {
             reader.close();
 
             System.out.println("And "+this.edges.size()+" edges.");
-            System.out.println(this.edges);
+
+            // sort the edges by the ascending number of the starting vertex
+            Collections.sort(edges);
+
+            for(Edge edge: this.edges){
+                System.out.println(edge);
+            }
+
+            computeDegrees();
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -88,6 +95,83 @@ public class Graph {
         }
         return -1;
     }
+
+    public int getVertexByNumber(int number){
+        if(number <= vertices.size()){
+            for(Vertex vertex : vertices){
+                if ((Integer.parseInt(vertex.number) == number)){
+                    return Integer.parseInt(vertex.number);
+                }
+            }
+        }
+        return -1;
+    }
+    public void computeDegrees(){
+        for(Vertex vertex : vertices){
+            vertex.computeDegre();
+        }
+    }
+
+    public void computeRanks(){
+        int rank = 0;
+        ArrayList<Vertex> sourceVertices = new ArrayList<>();
+        ArrayList<Vertex> leftVerticesToCheck = new ArrayList<>(vertices);
+
+
+        sourceVertices.add(vertices.get(0));
+        leftVerticesToCheck.remove(sourceVertices.get(0));
+
+        while(!sourceVertices.isEmpty()){
+
+            for(Vertex sourceVertex : sourceVertices ){
+                vertices.get(getVertexByNumber(Integer.parseInt(sourceVertex.number))).rank = rank;
+            }
+
+            for(Vertex leftVertex : leftVerticesToCheck){
+                for(Vertex sourceVertex : sourceVertices){
+                    for(Edge edge : leftVertex.incomingEdges){
+                        if(edge.from == sourceVertex){
+                            leftVertex.inDegre--;
+
+
+                        }
+
+                    }
+
+                }
+            }
+
+
+            sourceVertices.clear();
+            for(Vertex vertex : vertices){
+                // if the vertex indegre is equal to 0 and we haven't checked it yet, then we have to check it so we add
+                // it to the source list and delete it from the leftVertices list
+                if(vertex.inDegre == 0 && leftVerticesToCheck.contains(vertex)){
+                    sourceVertices.add(vertex);
+                    leftVerticesToCheck.remove(vertex);
+                }
+            }
+
+            rank++;
+
+            }
+
+        // Reset the degres of all the vertices
+        computeDegrees();
+
+        // Print the vertices for the smallest rank to the biggest
+        for(int i = 0; i <= rank ; i++){
+            for(Vertex vertex : vertices){
+                if(vertex.rank == i){
+                    System.out.println("Vertex " + vertex.number + " : rank -> " + vertex.rank);
+                }
+
+            }
+        }
+
+
+    }
+
 
     @Override
     public String toString(){
@@ -108,7 +192,7 @@ public class Graph {
             newRow.add(String.valueOf(row));
             // Fill the values with either * when there's nothing or the duration value of the task
             for(int col = 0; col < this.vertices.size(); col++){
-                if(checkEdge(row, col, copyEdges)>=0){
+                if(checkEdge(row, col, copyEdges) >=0 ){
                     newRow.add(String.valueOf(checkEdge(row, col, copyEdges)));
                 } else {
                     newRow.add("*");
