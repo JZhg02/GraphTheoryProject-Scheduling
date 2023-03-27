@@ -5,17 +5,19 @@ public class Main {
         System.out.println("\n");
         System.out.println("Adjacent Matrix:\n"+graph);
         System.out.println("The rank of each vertex of the graph is : \n");
-        graph.computeRanks();
-        //graph.computeDates();
-        graph.computePredecessors();
-        graph.computeSuccessors();
-        System.out.println("\n");
-        graph.computeDatesPerPredecessors();
-        System.out.println("\n");
-        graph.computeDatesPerSuccesor();
+        if(!graph.isCyclic()){
+            graph.computeRanks();
 
-
-
-
+            //graph.computeDates();
+            graph.computePredecessors();
+            graph.computeSuccessors();
+            System.out.println("\n");
+            graph.computeDatesPerPredecessors();
+            System.out.println("\n");
+            graph.computeDatesPerSuccesor();
+        }
+        else{
+            System.out.println("cyclic so not possible to compute dates");
+        }
     }
 }

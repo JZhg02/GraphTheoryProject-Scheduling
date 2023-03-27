@@ -16,6 +16,10 @@ public class Edge implements Comparable<Edge> {
         return Integer.parseInt(from.number) - vertexNumber;
     }
 
+    public int getDuration(){return this.duration;}
+    public Vertex getFrom(){return this.from;}
+    public Vertex getTo(){return this.to;}
+
     @Override
     public String toString(){
         return this.from+" -> "+this.to+" = "+this.duration;

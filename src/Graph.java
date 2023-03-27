@@ -98,6 +98,119 @@ public class Graph {
         return -1;
     }
 
+    public boolean checkEdgeNoNegativeDuration(){
+        //parcourir l'objet S, si on tombe sur un edge avec une direction < 0 => false, si ce n'est pas le cas on sort et on retourne True
+        for(Edge edge : this.edges){
+            if( edge.getDuration() < 0 ){
+                System.out.println("the graph has negative edges");
+                return false;
+            }
+        }
+        System.out.println("the graph has no negative edges");
+        return true;
+    }
+
+    /**
+     * Construit un tableau des étiquettes des sommets du graphe à partir de la liste des sommets.
+     * @return un tableau des étiquettes des sommets.
+     */
+    public String[] buildMappingIDVertex(){
+        // Crée un tableau de chaînes de caractères de taille égale au nombre de sommets dans le graphe
+        String[] MappingIDVertex = new String[vertices.size()];
+        // Parcours la liste des sommets du graphe
+        for ( int i = 0; i < vertices.size(); i++){
+            // Pour chaque sommet, on ajoute l'étiquette de ce sommet au tableau des étiquettes
+            // La méthode getNumber() retourne la chaîne de caractères qui représente l'étiquette du sommet
+            // On duplique la chaîne en utilisant le constructeur de la classe String pour éviter les effets de bord
+            MappingIDVertex[i] = new String(vertices.get(i).getNumber()) ;
+        }
+        // Retourne le tableau des étiquettes de sommets
+        return MappingIDVertex;
+    }
+
+    /**
+     * Retourne l'indice de l'étiquette d'un sommet dans le tableau des sommets
+     * @param MappingIDVertex : tableau des sommets
+     * @param labelVertex : étiquette du sommet dont on veut l'indice
+     * @return l'indice de l'étiquette dans le tableau des sommets, -1 si l'étiquette n'est pas présente dans le tableau
+     */
+    public int InverseMappingIDVertex(String [] MappingIDVertex, String labelVertex){
+        // Parcours le tableau des sommets
+        for(int i = 0; i <MappingIDVertex.length; i++){
+            // Si l'étiquette du sommet à l'indice i est égale à l'étiquette recherchée, retourne l'indice i
+            if (MappingIDVertex[i].equals(labelVertex) == true){
+                return i;
+            }
+        }
+        // Si l'étiquette n'est pas trouvée, retourne -1
+        return -1;
+    }
+
+    //Methode pour fabriquer la matrice d'adjacence
+    public List<List<Integer>> buildAdjacencyMatrix(String [] MappingIDVertex){
+        // parcouric l'ensemble des egdes pour chaque nouveu sommet et pusher la string qui l'identifie, chaque fois qu'on rencontre un edge dans lequel le sommet i est le point de départ( from) et le sommet d'adjacent sera le to.
+
+        List<List<Integer>> AdjacencyMatrix = new ArrayList<>(MappingIDVertex.length);
+        for(int i = 0; i < MappingIDVertex.length; i++ ){
+            AdjacencyMatrix.add(new LinkedList<Integer>());
+            for(Edge edge : this.edges){
+                if(edge.getFrom().getNumber().equals(MappingIDVertex[i]) == true){
+                    AdjacencyMatrix.get(i).add(InverseMappingIDVertex(MappingIDVertex, edge.getTo().getNumber())); // on récupère l'ID associé au label du sommet TO car il est adjacent au sommet qu'on traite
+                }
+            }
+        }
+        return AdjacencyMatrix;
+    }
+
+    public boolean isCyclicUtil(int i, boolean[] visited,
+                                boolean[] recStack, List<List<Integer>> AdjacencyMatrix)
+    {
+        // Mark the current node as visited and
+        // part of recursion stack
+        if (recStack[i])
+            return true;
+
+        if (visited[i])
+            return false;
+
+        visited[i] = true;
+
+        recStack[i] = true;
+        List<Integer> children = AdjacencyMatrix.get(i);
+
+        for (Integer c: children)
+            if (isCyclicUtil(c, visited, recStack, AdjacencyMatrix))
+                return true;
+
+        recStack[i] = false;
+
+        return false;
+    }
+
+    // Returns true if the graph contains a cycle, else false.
+    public boolean isCyclic() {
+        //build adjacency matrix
+        String[] MappingIDVertex = buildMappingIDVertex();
+        List<List<Integer>> AdjacencyMatrix = buildAdjacencyMatrix(MappingIDVertex);
+        System.out.println(AdjacencyMatrix);
+
+        // Mark all the vertices as not visited and
+        // not part of recursion stack
+        boolean[] visited = new boolean[MappingIDVertex.length];
+        boolean[] recStack = new boolean[MappingIDVertex.length];
+
+
+        // Call the recursive helper function to
+        // detect cycle in different DFS trees
+        for (int i = 0; i < MappingIDVertex.length; i++){
+            if (isCyclicUtil(i, visited, recStack, AdjacencyMatrix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public int getVertexByNumber(int number){
         if(number <= vertices.size()){
             for(Vertex vertex : vertices){
@@ -333,7 +446,6 @@ public class Graph {
                 }
             }
         }
-
 
         for (int i = 1; i <= highestRank; i++) {
             for (Vertex vertex : vertices) {

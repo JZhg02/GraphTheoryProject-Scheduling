@@ -37,4 +37,7 @@ public class Vertex {
         return this.number;
     }
 
+    public String getNumber(){return this.number;}
+
+
 }
