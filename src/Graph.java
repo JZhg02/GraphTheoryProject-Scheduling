@@ -8,6 +8,8 @@ public class Graph {
     ArrayList<Vertex> vertices = new ArrayList<>();
     ArrayList<Edge> edges = new ArrayList<>();
 
+    int highestRank;
+
     Graph(String fileName) {
 
         System.out.println("* Creating the scheduling graph:");
@@ -152,6 +154,7 @@ public class Graph {
                     leftVerticesToCheck.remove(vertex);
                 }
             }
+            highestRank = rank;
             rank++;
         }
 
@@ -160,6 +163,7 @@ public class Graph {
         } else {
             System.out.println("No cycles detected, ranks were computed correctly. \n");
         }
+
 
         // Reset the degrees of all the vertices
         computeDegrees();
@@ -219,6 +223,125 @@ public class Graph {
             strbld.append("\n");
         }
         return strbld.toString();
+    }
+
+    public void computeDates(){
+        System.out.println("\n");
+        for(int i = 0; i <= highestRank ; i++){
+            for(Vertex vertex : vertices){
+                if(vertex.rank == i){
+                    System.out.println("rank : "  + vertex.rank);
+                    System.out.println("task ->");
+                    System.out.println("...");
+                    System.out.println("\n");
+                }
+            }
+        }
+    }
+
+
+    void computePredecessors(){
+        for (Vertex vertex : vertices){
+            for(Edge edge : edges){
+                if(edge.to == vertex){
+                    vertex.predecessors.add(edge.from);
+                }
+            }
+        }
+
+        for (Vertex vertex : vertices){
+            System.out.println("vertex number : " + vertex.number);
+            System.out.println(vertex.predecessors);
+            System.out.println("\n");
+        }
+    }
+
+    void computeSuccessors(){
+        for (Vertex vertex : vertices){
+            for(Edge edge : edges){
+                if(edge.from == vertex){
+                    vertex.successors.add(edge.to);
+                }
+            }
+        }
+
+        for (Vertex vertex : vertices){
+            System.out.println("vertex number : " + vertex.number);
+            System.out.println(vertex.successors);
+            System.out.println("\n");
+        }
+
+    }
+
+
+
+    void computeDatesPerPredecessors() {
+
+        vertices.get(0).earliestDate = new Couple(0, -1);
+        vertices.get(0).datesPerPredecessors.add(new Couple(0, -1));
+
+        for (int i = 1; i <= highestRank; i++) {
+            for (Vertex vertex : vertices) {
+                if (vertex.rank == i) {
+                    for (Vertex predecessor : vertex.predecessors) {
+                        vertex.datesPerPredecessors.add(new Couple(predecessor.earliestDate.duration + predecessor.duration, Integer.parseInt(predecessor.number)));
+
+                    }
+                    //System.out.println(vertex.number);
+                    //System.out.println(vertex.datesPerPredecessors);
+                    vertex.earliestDate = vertex.datesPerPredecessors.get(0);
+                    for (Couple datesPerPredecessor : vertex.datesPerPredecessors) {
+                        if (datesPerPredecessor.duration > vertex.earliestDate.duration) {
+                            vertex.earliestDate = datesPerPredecessor;
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+        for (int i = 1; i <= highestRank; i++) {
+            for (Vertex vertex : vertices) {
+                if (vertex.rank == i) {
+                    System.out.println(vertex.earliestDate);
+                }
+            }
+        }
+    }
+
+
+
+    void computeDatesPerSuccesor(){
+
+        vertices.get(vertices.size() - 1).latestDate = new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1);
+        vertices.get(vertices.size() - 1).datesPerSuccessors.add(new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1));
+
+        for (int i = highestRank - 1; i >= 0 ; i--) {
+            for (Vertex vertex : vertices) {
+                if (vertex.rank == i) {
+                    for (Vertex successor : vertex.successors) {
+                        vertex.datesPerSuccessors.add(new Couple(successor.latestDate.duration - vertex.duration, Integer.parseInt(successor.number)));
+                    }
+                    vertex.latestDate = vertex.datesPerSuccessors.get(0);
+                    for (Couple datesPerSuccessor : vertex.datesPerSuccessors) {
+                        if (datesPerSuccessor.duration < vertex.latestDate.duration) {
+                            vertex.latestDate = datesPerSuccessor;
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+        for (int i = 1; i <= highestRank; i++) {
+            for (Vertex vertex : vertices) {
+                if (vertex.rank == i) {
+                    System.out.println(vertex.latestDate);
+                }
+            }
+        }
     }
 
 }

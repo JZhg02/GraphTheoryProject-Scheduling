@@ -10,6 +10,18 @@ public class Vertex {
     int duration;
     int rank;
 
+    ArrayList<Vertex> predecessors = new ArrayList<>();
+
+    ArrayList<Couple> datesPerPredecessors = new ArrayList<>();
+
+    Couple earliestDate;
+
+    ArrayList<Vertex> successors = new ArrayList<>();
+
+    ArrayList<Couple> datesPerSuccessors = new ArrayList<>();
+
+    Couple latestDate;
+
     Vertex(String givenNumber, int givenDuration){
         this.number = givenNumber;
         this.duration = givenDuration;
