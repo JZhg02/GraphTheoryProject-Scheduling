@@ -12,8 +12,9 @@ public class Edge implements Comparable<Edge> {
 
     @Override
     public int compareTo(Edge edgeToCompare){
-        int vertexNumber = Integer.parseInt(edgeToCompare.from.number);
-        return Integer.parseInt(from.number) - vertexNumber;
+        int rankNumber = Integer.parseInt(edgeToCompare.from.number);
+        return Integer.parseInt(from.number) - rankNumber;
+
     }
 
     public int getDuration(){return this.duration;}

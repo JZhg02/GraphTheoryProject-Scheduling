@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Vertex {
+public class Vertex implements Comparable<Vertex> {
 
     String number;
     ArrayList<Edge> outgoingEdges = new ArrayList<>();
@@ -9,6 +9,8 @@ public class Vertex {
     int inDegree;
     int duration;
     int rank;
+
+    int totalFloat;
 
     ArrayList<Vertex> predecessors = new ArrayList<>();
 
@@ -30,6 +32,13 @@ public class Vertex {
     public void computeDegree(){
         inDegree = incomingEdges.size();
         outDegree = outgoingEdges.size();
+    }
+
+    @Override
+    public int compareTo(Vertex vertexToCompare){
+        int rankNumber = vertexToCompare.rank;
+        return rank - rankNumber;
+
     }
 
     @Override

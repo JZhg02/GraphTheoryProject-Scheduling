@@ -192,7 +192,7 @@ public class Graph {
         //build adjacency matrix
         String[] MappingIDVertex = buildMappingIDVertex();
         List<List<Integer>> AdjacencyMatrix = buildAdjacencyMatrix(MappingIDVertex);
-        System.out.println(AdjacencyMatrix);
+        //System.out.println(AdjacencyMatrix);
 
         // Mark all the vertices as not visited and
         // not part of recursion stack
@@ -281,14 +281,22 @@ public class Graph {
         // Reset the degrees of all the vertices
         computeDegrees();
 
-        // Print the vertices for the smallest rank to the biggest
-        for(int i = 0; i <= rank ; i++){
-            for(Vertex vertex : vertices){
-                if(vertex.rank == i){
-                    System.out.println("Vertex " + vertex.number + " : rank -> " + vertex.rank);
-                }
-            }
+        // sort the vertices list by rank index with ascending order
+        Collections.sort(vertices);
+
+        System.out.print("Vertex Rank : ");
+        for(Vertex vertex : vertices){
+            System.out.println("vertex : " + vertex.number + "/" + "rank : " + vertex.rank);
         }
+
+        // Print the vertices for the smallest rank to the biggest
+        //for(int i = 0; i <= rank ; i++){
+            //for(Vertex vertex : vertices){
+                //if(vertex.rank == i){
+                    //System.out.println("Vertex " + vertex.number + " : rank -> " + vertex.rank);
+                //}
+            //}
+        //}
     }
 
 
@@ -338,19 +346,26 @@ public class Graph {
         return strbld.toString();
     }
 
-    public void computeDates(){
-        System.out.println("\n");
-        for(int i = 0; i <= highestRank ; i++){
-            for(Vertex vertex : vertices){
-                if(vertex.rank == i){
-                    System.out.println("rank : "  + vertex.rank);
-                    System.out.println("task ->");
-                    System.out.println("...");
-                    System.out.println("\n");
-                }
-            }
-        }
+    public String displayScheduling(){
+       return "";
     }
+
+    public void computeDates(){
+        computePredecessors();
+        System.out.print("\n");
+        computeSuccessors();
+        System.out.print("\n");
+        System.out.print("Vertex EarliestDate : ");
+        computeDatesPerPredecessors();
+        System.out.print("\n");
+        System.out.print("Vertex LatestDate : ");
+        computeDatesPerSuccesor();
+        System.out.print("\n");
+
+
+    }
+
+
 
 
     void computePredecessors(){
@@ -362,11 +377,14 @@ public class Graph {
             }
         }
 
+        /*
         for (Vertex vertex : vertices){
             System.out.println("vertex number : " + vertex.number);
             System.out.println(vertex.predecessors);
             System.out.println("\n");
         }
+
+         */
     }
 
     void computeSuccessors(){
@@ -378,12 +396,24 @@ public class Graph {
             }
         }
 
+        /*
         for (Vertex vertex : vertices){
             System.out.println("vertex number : " + vertex.number);
             System.out.println(vertex.successors);
             System.out.println("\n");
         }
 
+         */
+
+    }
+
+    public Vertex getVertexByRank(int rank){
+        for(Vertex vertex : vertices){
+            if(vertex.rank == rank){
+                return vertex;
+            }
+        }
+        return null;
     }
 
 
@@ -413,16 +443,13 @@ public class Graph {
             }
         }
 
-
-        for (int i = 1; i <= highestRank; i++) {
-            for (Vertex vertex : vertices) {
-                if (vertex.rank == i) {
-                    System.out.println(vertex.earliestDate);
-                }
-            }
+        for(Vertex vertex : vertices){
+            System.out.println("earliest date : " + vertex.earliestDate);
         }
-    }
 
+        System.out.print("\n");
+
+    }
 
 
     void computeDatesPerSuccesor(){
@@ -447,13 +474,70 @@ public class Graph {
             }
         }
 
-        for (int i = 1; i <= highestRank; i++) {
-            for (Vertex vertex : vertices) {
-                if (vertex.rank == i) {
-                    System.out.println(vertex.latestDate);
-                }
-            }
+        for(Vertex vertex : vertices){
+            System.out.println("latestDate : " + vertex.latestDate);
         }
+
     }
 
-}
+    void computeTotalFloats(){
+        for(Vertex vertex : vertices){
+            vertex.totalFloat = vertex.latestDate.duration - vertex.earliestDate.duration;
+            System.out.println("vertex :" + vertex.number + " | " + "total float : " + vertex.totalFloat);
+        }
+        System.out.print("\n");
+    }
+
+    void displayCriticalPath(){
+
+        // is working if only one critical path, not many :(
+
+        ArrayList<ArrayList> allCriticalPaths = new ArrayList<>();
+
+        ArrayList<Vertex> FirstCriticalPath = new ArrayList<>();
+
+        // get the first vertex because for it, total float is always equal to 0
+        FirstCriticalPath.add(vertices.get(0));
+
+        allCriticalPaths.add(FirstCriticalPath);
+
+        boolean newPathFound;
+        int index = 0;
+
+        do {
+            newPathFound = false;
+
+            ArrayList<Vertex> pathWorkingOn = allCriticalPaths.get(index);
+
+            for(Vertex vertex : vertices){
+                // loop on all vertex except the first one, ie it's rank == 0
+                if(vertex.totalFloat == 0){ //
+                    for(Edge edge : edges){
+                        if(edge.from.equals(vertex)){
+                            if(edge.to.totalFloat == 0){
+                                pathWorkingOn.add(edge.to);
+                            }
+                        }
+                    }
+                }
+            }
+
+            System.out.println("index : " +  index);
+            index++;
+
+
+        }while (newPathFound);
+
+        System.out.print("critical path : ");
+        System.out.println(allCriticalPaths);
+
+
+
+
+        }
+
+
+
+    }
+
+
