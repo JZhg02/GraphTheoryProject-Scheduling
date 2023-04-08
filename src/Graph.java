@@ -499,43 +499,99 @@ public class Graph {
 
     void displayCriticalPath(){
 
-        // is working if only one critical path, not many :(
-
+        // create a list to store all the critical path of the graph
         ArrayList<ArrayList> allCriticalPaths = new ArrayList<>();
 
+        // create the first critical path
         ArrayList<Vertex> FirstCriticalPath = new ArrayList<>();
 
-        // get the first vertex because for it, total float is always equal to 0
+        // add to it the entry vertex
         FirstCriticalPath.add(vertices.get(0));
 
+        // add this path to the list containing all the possible other paths
         allCriticalPaths.add(FirstCriticalPath);
 
-        boolean newPathFound;
+        // boolean conditions
+        boolean newCriticalPathFound;
         int index = 0;
 
+        // do while loop -> will loop if a newpath found is found ( newPathFound is true ) or if a path is list hasn't been updated yet
         do {
-            newPathFound = false;
+            // initialize netpathfound variable
+            newCriticalPathFound = false;
 
+            // get a path in the paths list according to the index
             ArrayList<Vertex> pathWorkingOn = allCriticalPaths.get(index);
 
             System.out.println("path working on :" + pathWorkingOn);
             System.out.println("");
+
+            /* here, the algorithm is the following :
+            we loop on all the vertex in the graph
+            if the vertex is equal to the last vertex of the current path, for example : we have the path 1 -> 2 -> 3
+            then the vertex should be 3
+            then, if the vertex total float is equals to 0, ie it belong to a critical path, we loop on all the edges
+            of the graph and check for edges whose start on this vertex and has a "to vertex " with a total float of 0.
+            If we found one, then we check if the current path contains the "from vertex" of the edge, and if it's the
+            case we add the "to vertex " to the current critical path the algorithm is working on.
+
+            */
+
+            /*
+            As you can see, we don't mention the "newCriticalPathFound" variable in the above algorithm.
+            In fact, this algorithm only works for graph that only contains one and only one critical path.
+            To deal with graph that contains more than one, we need to add more steps to our algorithm.
+
+            First, we add a variable "LastEdgeChecked" that store the last edge the algorithm checked. For example,
+            imagine that we are working on the following graph :
+
+            1 -> 2 = 1
+            1 -> 3 = 1
+
+            ( In our programm, we are storing the edges exaxctly as above, so in a list which is sorted by the name of
+            the vertex )
+
+            In this graph, the total float of is equal to 0 for all the vertex. So the edge 1 -> 3 is selected,
+            the "LastEdgeChecked" variable will store the edge 1 -> 2.
+
+            After, if the "from vertex " of the edge stored in LastEdgeChecked is equal to the from vertex of the
+            current working on edge, then it means another possible critical path ( Remember that we already check if
+            the total float value of the "from vertex " and the "to vertex" of the working on edge was equal to 0 ).
+
+            So now, we found another possible critical path. So we have to create a new list that we add to our
+            list which is storing all the critical path. This list will contain all the vertices of the
+            critical path we're working on, and we will add to it the "to vertex", in other words the new vertex which
+            was not contains in the critical path we're working on. We set the newCriticalPathFound variable to true
+            to loop again on our critical paths.
+
+            The critical path
+
+            Later on, the algorithm will work on the new path that has been found to complete it. And of course, a new
+            critical path can be found from this path.
+
+            At the end, we have our paths ( or one path ). There are not really critical path because a critical
+            path should be the longest path, and thats not the case for all path that contain vertex with a total
+            float equals to 0. We already store the longestDuration in a preivous algorithm, so we just need to check
+            for all our path if the sum of the duration of their vertex is equal to the longestDuration. If this is the
+            case, then it is a critical path and we can then display it.
+
+             */
+
+
 
             for(Vertex vertex : vertices) {
                 if(vertex == pathWorkingOn.get(pathWorkingOn.size() - 1)){
                     System.out.println("patjworlingon :" + pathWorkingOn);
                     System.out.println("last vertex ? : " +  pathWorkingOn.get(pathWorkingOn.size() - 1));
                     System.out.println("");
-                // loop on all vertex except the first one, ie it's rank == 0
-                //if (!pathWorkingOn.contains(vertex)) {
                     if (vertex.totalFloat == 0) { //
-                        Edge fromEdgeAlreadySeen = null;
+                        Edge LastEdgeChecked = null;
                         for (Edge edge : edges) {
                             System.out.println(edge);
                             if (edge.from.equals(vertex) && edge.to.totalFloat == 0) {
-                                if (fromEdgeAlreadySeen != null && fromEdgeAlreadySeen.from == edge.from) {
+                                if (LastEdgeChecked != null && LastEdgeChecked.from == edge.from) {
                                     System.out.println("actuel edge : " + edge);
-                                    System.out.println("fromEdgeAlreadySeen : " + fromEdgeAlreadySeen);
+                                    System.out.println("fromEdgeAlreadySeen : " + LastEdgeChecked);
                                     ArrayList<Vertex> newPath = new ArrayList<>(pathWorkingOn);
                                     newPath.remove(newPath.size() - 1);
                                     System.out.println("pathWorkingOn : " + pathWorkingOn);
@@ -543,14 +599,14 @@ public class Graph {
                                     System.out.println("newpath : " + newPath);
                                     System.out.println("-------");
                                     allCriticalPaths.add(newPath);
-                                    newPathFound = true;
+                                    newCriticalPathFound = true;
 
                                 }else if (pathWorkingOn.contains(edge.from)) {
                                         System.out.println("vertex to add : " + edge.to);
                                         pathWorkingOn.add(edge.to);
                                     }
 
-                                fromEdgeAlreadySeen = edge;
+                                LastEdgeChecked = edge;
 
                                 }
 
@@ -559,11 +615,11 @@ public class Graph {
                 }
             }
 
-            System.out.println("all critical path : " + allCriticalPaths);
+            //System.out.println("all critical path : " + allCriticalPaths);
 
             index++;
 
-        }while (newPathFound || index != allCriticalPaths.size());
+        }while (newCriticalPathFound || index != allCriticalPaths.size());
 
         /*
         for(ArrayList path : allCriticalPaths){
@@ -574,18 +630,30 @@ public class Graph {
 
          */
 
+        System.out.println("Critical path : ");
         for(ArrayList<Vertex> critical_path : allCriticalPaths){
             int sum = 0;
             for(Vertex vertex : critical_path){
                 sum += vertex.duration;
             }
             if(sum == longestDuration){
-                System.out.println(critical_path);
+
+                for(Vertex vertex : critical_path){
+                    System.out.print(vertex.number);
+                    if(vertex != vertices.get(vertices.size() - 1)){
+                        System.out.print(" -> ");
+                    }
+                }
+                System.out.println("");
+
             }
         }
 
+        /*
         System.out.print("critical path(s) after calculation: ");
         System.out.println(allCriticalPaths);
+
+         */
 
 
 
