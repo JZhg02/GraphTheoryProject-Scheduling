@@ -19,7 +19,7 @@ public class Main {
 
     public void Menu(){
 
-        Graph graph = new Graph("file" +  getUserFileNumber() + ".txt");
+        Graph graph = new Graph("table" +  getUserFileNumber() + ".txt");
         System.out.println("\n");
         System.out.println("Adjacent Matrix:\n" + graph);
 

@@ -10,6 +10,8 @@ public class Graph {
 
     int highestRank;
 
+    int longestDuration;
+
     Graph(String fileName) {
 
         System.out.println("* Creating the scheduling graph:");
@@ -222,6 +224,7 @@ public class Graph {
         return -1;
     }
 
+
     public void computeDegrees(){
         for(Vertex vertex : vertices){
             vertex.computeDegree();
@@ -284,7 +287,7 @@ public class Graph {
         // sort the vertices list by rank index with ascending order
         Collections.sort(vertices);
 
-        System.out.print("Vertex Rank : ");
+        System.out.println("Vertex Rank :");
         for(Vertex vertex : vertices){
             System.out.println("vertex : " + vertex.number + "/" + "rank : " + vertex.rank);
         }
@@ -355,10 +358,10 @@ public class Graph {
         System.out.print("\n");
         computeSuccessors();
         System.out.print("\n");
-        System.out.print("Vertex EarliestDate : ");
+        System.out.println("Vertex EarliestDate : ");
         computeDatesPerPredecessors();
         System.out.print("\n");
-        System.out.print("Vertex LatestDate : ");
+        System.out.println("Vertex LatestDate : ");
         computeDatesPerSuccesor();
         System.out.print("\n");
 
@@ -444,18 +447,24 @@ public class Graph {
         }
 
         for(Vertex vertex : vertices){
-            System.out.println("earliest date : " + vertex.earliestDate);
+            System.out.println("vertex " + vertex.number + "/" + " date : " + vertex.earliestDate);
         }
 
+
+
         System.out.print("\n");
+
 
     }
 
 
     void computeDatesPerSuccesor(){
 
-        vertices.get(vertices.size() - 1).latestDate = new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1);
+        longestDuration =  vertices.get(vertices.size() - 1).earliestDate.duration;
+        System.out.println("longest duration : " + longestDuration);
         vertices.get(vertices.size() - 1).datesPerSuccessors.add(new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1));
+        vertices.get(vertices.size() - 1).latestDate = new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1);
+
 
         for (int i = highestRank - 1; i >= 0 ; i--) {
             for (Vertex vertex : vertices) {
@@ -509,26 +518,73 @@ public class Graph {
 
             ArrayList<Vertex> pathWorkingOn = allCriticalPaths.get(index);
 
-            for(Vertex vertex : vertices){
+            System.out.println("path working on :" + pathWorkingOn);
+            System.out.println("");
+
+            for(Vertex vertex : vertices) {
+                if(vertex == pathWorkingOn.get(pathWorkingOn.size() - 1)){
+                    System.out.println("patjworlingon :" + pathWorkingOn);
+                    System.out.println("last vertex ? : " +  pathWorkingOn.get(pathWorkingOn.size() - 1));
+                    System.out.println("");
                 // loop on all vertex except the first one, ie it's rank == 0
-                if(vertex.totalFloat == 0){ //
-                    for(Edge edge : edges){
-                        if(edge.from.equals(vertex)){
-                            if(edge.to.totalFloat == 0){
-                                pathWorkingOn.add(edge.to);
-                            }
+                //if (!pathWorkingOn.contains(vertex)) {
+                    if (vertex.totalFloat == 0) { //
+                        Edge fromEdgeAlreadySeen = null;
+                        for (Edge edge : edges) {
+                            System.out.println(edge);
+                            if (edge.from.equals(vertex) && edge.to.totalFloat == 0) {
+                                if (fromEdgeAlreadySeen != null && fromEdgeAlreadySeen.from == edge.from) {
+                                    System.out.println("actuel edge : " + edge);
+                                    System.out.println("fromEdgeAlreadySeen : " + fromEdgeAlreadySeen);
+                                    ArrayList<Vertex> newPath = new ArrayList<>(pathWorkingOn);
+                                    newPath.remove(newPath.size() - 1);
+                                    System.out.println("pathWorkingOn : " + pathWorkingOn);
+                                    newPath.add(edge.to);
+                                    System.out.println("newpath : " + newPath);
+                                    System.out.println("-------");
+                                    allCriticalPaths.add(newPath);
+                                    newPathFound = true;
+
+                                }else if (pathWorkingOn.contains(edge.from)) {
+                                        System.out.println("vertex to add : " + edge.to);
+                                        pathWorkingOn.add(edge.to);
+                                    }
+
+                                fromEdgeAlreadySeen = edge;
+
+                                }
+
                         }
                     }
                 }
             }
 
-            System.out.println("index : " +  index);
+            System.out.println("all critical path : " + allCriticalPaths);
+
             index++;
 
+        }while (newPathFound || index != allCriticalPaths.size());
 
-        }while (newPathFound);
+        /*
+        for(ArrayList path : allCriticalPaths){
+            for(Vertex vertex : path){
+                System.out.println(vertex);
+            }
+        }
 
-        System.out.print("critical path : ");
+         */
+
+        for(ArrayList<Vertex> critical_path : allCriticalPaths){
+            int sum = 0;
+            for(Vertex vertex : critical_path){
+                sum += vertex.duration;
+            }
+            if(sum == longestDuration){
+                System.out.println(critical_path);
+            }
+        }
+
+        System.out.print("critical path(s) after calculation: ");
         System.out.println(allCriticalPaths);
 
 
