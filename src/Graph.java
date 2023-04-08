@@ -113,102 +113,115 @@ public class Graph {
     }
 
     /**
-     * Construit un tableau des étiquettes des sommets du graphe à partir de la liste des sommets.
-     * @return un tableau des étiquettes des sommets.
+     * Builds an array of vertex labels from the list of vertices in the graph.
+     * @return an array of vertex labels.
      */
     public String[] buildMappingIDVertex(){
-        // Crée un tableau de chaînes de caractères de taille égale au nombre de sommets dans le graphe
+        // Create a new String array with the same size as the number of vertices in the graph
         String[] MappingIDVertex = new String[vertices.size()];
-        // Parcours la liste des sommets du graphe
-        for ( int i = 0; i < vertices.size(); i++){
-            // Pour chaque sommet, on ajoute l'étiquette de ce sommet au tableau des étiquettes
-            // La méthode getNumber() retourne la chaîne de caractères qui représente l'étiquette du sommet
-            // On duplique la chaîne en utilisant le constructeur de la classe String pour éviter les effets de bord
+        // Loop through each vertex in the graph
+        for (int i = 0; i < vertices.size(); i++){
+            // For each vertex, add its label to the MappingIDVertex array
+            // The getNumber() method returns the String label of the vertex
+            // We duplicate the String using the String constructor to avoid side effects
             MappingIDVertex[i] = new String(vertices.get(i).getNumber()) ;
         }
-        // Retourne le tableau des étiquettes de sommets
+        // Return the array of vertex labels
         return MappingIDVertex;
     }
 
-    /**
-     * Retourne l'indice de l'étiquette d'un sommet dans le tableau des sommets
-     * @param MappingIDVertex : tableau des sommets
-     * @param labelVertex : étiquette du sommet dont on veut l'indice
-     * @return l'indice de l'étiquette dans le tableau des sommets, -1 si l'étiquette n'est pas présente dans le tableau
-     */
     public int InverseMappingIDVertex(String [] MappingIDVertex, String labelVertex){
-        // Parcours le tableau des sommets
+        // Loop through each vertex in the MappingIDVertex array
         for(int i = 0; i <MappingIDVertex.length; i++){
-            // Si l'étiquette du sommet à l'indice i est égale à l'étiquette recherchée, retourne l'indice i
+            // Check if the label of the vertex at index i matches the label we are searching for
             if (MappingIDVertex[i].equals(labelVertex) == true){
+                // If it does, return the index i
                 return i;
             }
         }
-        // Si l'étiquette n'est pas trouvée, retourne -1
+        // If the label is not found, return -1
         return -1;
     }
 
-    //Methode pour fabriquer la matrice d'adjacence
-    public List<List<Integer>> buildAdjacencyMatrix(String [] MappingIDVertex){
-        // parcouric l'ensemble des egdes pour chaque nouveu sommet et pusher la string qui l'identifie, chaque fois qu'on rencontre un edge dans lequel le sommet i est le point de départ( from) et le sommet d'adjacent sera le to.
 
+    //Build the adjacency Matrix
+    public List<List<Integer>> buildAdjacencyMatrix(String [] MappingIDVertex){
+        // Initialize an empty AdjacencyMatrix with the same size as the MappingIDVertex array
         List<List<Integer>> AdjacencyMatrix = new ArrayList<>(MappingIDVertex.length);
+        // Loop through each vertex in the MappingIDVertex array
         for(int i = 0; i < MappingIDVertex.length; i++ ){
+            // Create a new LinkedList for each vertex in the AdjacencyMatrix
             AdjacencyMatrix.add(new LinkedList<Integer>());
+            // Loop through each edge in the graph
             for(Edge edge : this.edges){
+                // Check if the "from" vertex of the edge matches the current vertex in the MappingIDVertex array
                 if(edge.getFrom().getNumber().equals(MappingIDVertex[i]) == true){
-                    AdjacencyMatrix.get(i).add(InverseMappingIDVertex(MappingIDVertex, edge.getTo().getNumber())); // on récupère l'ID associé au label du sommet TO car il est adjacent au sommet qu'on traite
+                    // If it matches, add the "to" vertex of the edge to the LinkedList of the current vertex in the AdjacencyMatrix
+                    AdjacencyMatrix.get(i).add(InverseMappingIDVertex(MappingIDVertex, edge.getTo().getNumber()));
                 }
             }
         }
+        // Return the completed AdjacencyMatrix
         return AdjacencyMatrix;
     }
 
-    public boolean isCyclicUtil(int i, boolean[] visited,
-                                boolean[] recStack, List<List<Integer>> AdjacencyMatrix)
-    {
-        // Mark the current node as visited and
-        // part of recursion stack
-        if (recStack[i])
-            return true;
-
-        if (visited[i])
-            return false;
-
-        visited[i] = true;
-
-        recStack[i] = true;
-        List<Integer> children = AdjacencyMatrix.get(i);
-
-        for (Integer c: children)
-            if (isCyclicUtil(c, visited, recStack, AdjacencyMatrix))
-                return true;
-
-        recStack[i] = false;
-
-        return false;
-    }
 
     // Returns true if the graph contains a cycle, else false.
     public boolean isCyclic() {
-        //build adjacency matrix
+        // Build adjacency matrix
         String[] MappingIDVertex = buildMappingIDVertex();
         List<List<Integer>> AdjacencyMatrix = buildAdjacencyMatrix(MappingIDVertex);
-        //System.out.println(AdjacencyMatrix);
+        System.out.println(AdjacencyMatrix);
 
-        // Mark all the vertices as not visited and
-        // not part of recursion stack
-        boolean[] visited = new boolean[MappingIDVertex.length];
-        boolean[] recStack = new boolean[MappingIDVertex.length];
-
-
-        // Call the recursive helper function to
-        // detect cycle in different DFS trees
-        for (int i = 0; i < MappingIDVertex.length; i++){
-            if (isCyclicUtil(i, visited, recStack, AdjacencyMatrix)) {
-                return true;
+        // Initialize entry points and remaining vertices
+        List<Integer> entryPoints = new ArrayList<>();
+        List<Integer> remainingVertices = new ArrayList<>();
+        for (int i = 0; i < MappingIDVertex.length; i++) {
+            remainingVertices.add(i);
+            if (AdjacencyMatrix.get(i).isEmpty()) {
+                entryPoints.add(i);
             }
         }
+
+        // Eliminate entry points until graph is empty or no entry points remain
+        while (!remainingVertices.isEmpty()) {
+            System.out.println("Exit points: " + entryPoints);
+
+            if (entryPoints.isEmpty()) {
+                // No entry points left but graph is not empty, cycle detected
+                System.out.println("Eliminating exit points");
+                System.out.println("Remaining vertices: " + remainingVertices);
+                System.out.println("-> There is a cycle");
+                return true;
+            }
+
+            // Remove entry points and their edges from graph
+            for (int i : entryPoints) {
+                remainingVertices.remove((Integer) i);
+                for (List<Integer> edges : AdjacencyMatrix) {
+                    edges.remove((Integer) i);
+                }
+            }
+
+            // Find new entry points
+            List<Integer> newEntryPoints = new ArrayList<>();
+            for (int i : remainingVertices) {
+                if (AdjacencyMatrix.get(i).isEmpty()) {
+                    newEntryPoints.add(i);
+                }
+            }
+
+            // Update entry points
+            entryPoints = newEntryPoints;
+            System.out.println("Eliminating exit points");
+            System.out.println("Remaining vertices: " + remainingVertices);
+        }
+
+        // Graph is empty, no cycle detected
+        System.out.println("Exit points: None");
+        System.out.println("Eliminating exit points");
+        System.out.println("Remaining vertices: None");
+        System.out.println("-> There is no cycle");
         return false;
     }
 
