@@ -1,3 +1,6 @@
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Main {
@@ -17,51 +20,59 @@ public class Main {
 
     }
 
-    public void Menu(){
 
-        Graph graph = new Graph("table" +  getUserFileNumber() + ".txt");
-        System.out.println("\n");
+    public void Menu(){
+        String fileName = "table" +  getUserFileNumber();
+        try {
+            outputFiles(fileName);
+        } catch (FileNotFoundException fnfe){
+            fnfe.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("This is "+fileName+"\n");
+        Graph graph = new Graph(fileName+".txt");
+        System.out.print("\n");
         System.out.println("Adjacent Matrix:\n" + graph);
 
-        if(!graph.isCyclic()){
+        System.out.println("Checking if there are cycles and negative edges...\n");
+        if(!graph.isCyclic() && graph.noNegativeDuration()){
+            System.out.println("\nComputing ranks and dates...\n");
             graph.computeRanks();
             graph.computeDates();
             graph.computeTotalFloats();
+            graph.displayDatesTable();
             graph.displayCriticalPath();
-
-            //System.out.println(graph.displayScheduling());
         }
         else{
-            System.out.println("cyclic so not possible to compute dates");
+            System.out.println("This is a cyclic graph, so we won't proceed further. ");
         }
         System.out.print("\n");
-        System.out.println("what to do next ? ");
+        System.out.println("What do you want to do next ? ");
         getUserInputContinue();
     }
 
 
-
     public String getUserFileNumber(){
         Scanner myObj = new Scanner(System.in);  // Create a Scanner object
-        System.out.print("Enter file number please : ");
+        System.out.print("Enter file number please (1 to 12) : ");
 
-        String choosenFile = myObj.nextLine();  // Read user input
-        int choosenFileAsInteger = Integer.parseInt(choosenFile);
+        String chosenFile = myObj.nextLine();  // Read user input
+        int chosenFileAsInteger = Integer.parseInt(chosenFile);
 
-        if(choosenFileAsInteger >= 0 && choosenFileAsInteger <= 12){
-            System.out.println("you choose the file " + choosenFile);
+        if(chosenFileAsInteger >= 0 && chosenFileAsInteger <= 12){
+            System.out.println("Chosen file : " + chosenFile);
         }else{
-            System.out.println("enter a number between 0 and 12 both include \n");
+            System.out.println("Enter a number between 1 and 12 included: \n");
             getUserFileNumber();
         }
-
-        return choosenFile;
-
+        return chosenFile;
     }
+
 
     public void getUserInputContinue(){
         Scanner myObj = new Scanner(System.in);  // Create a Scanner object
-        System.out.print("Do you want to work on an other file ? Press yes or no : ");
+        System.out.print("Do you want to work on another file ? Enter 'yes' or 'no' : ");
 
         String choice= myObj.nextLine();  // Read user input
 
@@ -69,14 +80,21 @@ public class Main {
             Menu();
 
         }else if(choice.equals("no")){
-            System.out.println("bye bye mon gars");
+            System.out.println("Exiting...");
             System.exit(0);
         }
         else{
-            System.out.print("enter a good response please ");
+            System.out.print("Enter either 'yes' or 'no': ");
             getUserInputContinue();
         }
+    }
 
 
+    public void outputFiles(String fileName) throws IOException {
+        String path = "src/OutputFiles/" + fileName + "_output.txt";
+        Files.createDirectories(Paths.get(path.substring(0, path.lastIndexOf("/"))));
+        FileOutputStream file = new FileOutputStream(path);
+        TeePrintStream tee = new TeePrintStream(file, System.out);
+        System.setOut(tee);
     }
 }

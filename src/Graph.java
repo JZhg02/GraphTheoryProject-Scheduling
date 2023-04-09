@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Graph {
@@ -91,6 +92,7 @@ public class Graph {
         }
     }
 
+
     public int checkEdge(int row, int col, ArrayList<Edge> array){
         for(Edge edge : array){
             if(Objects.equals(edge.from.number, String.valueOf(row)) && Objects.equals(edge.to.number, String.valueOf(col))){
@@ -100,17 +102,19 @@ public class Graph {
         return -1;
     }
 
-    public boolean checkEdgeNoNegativeDuration(){
-        //parcourir l'objet S, si on tombe sur un edge avec une direction < 0 => false, si ce n'est pas le cas on sort et on retourne True
+
+    public boolean noNegativeDuration(){
+        // for each edge, if the edge's duration < 0 => false, else => true
         for(Edge edge : this.edges){
             if( edge.getDuration() < 0 ){
-                System.out.println("the graph has negative edges");
+                System.out.println("There's at least a negative edge in this graph.");
                 return false;
             }
         }
-        System.out.println("the graph has no negative edges");
+        System.out.println("The graph has no negative edges. ");
         return true;
     }
+
 
     /**
      * Builds an array of vertex labels from the list of vertices in the graph.
@@ -124,17 +128,18 @@ public class Graph {
             // For each vertex, add its label to the MappingIDVertex array
             // The getNumber() method returns the String label of the vertex
             // We duplicate the String using the String constructor to avoid side effects
-            MappingIDVertex[i] = new String(vertices.get(i).getNumber()) ;
+            MappingIDVertex[i] = vertices.get(i).getNumber() ;
         }
         // Return the array of vertex labels
         return MappingIDVertex;
     }
 
+
     public int InverseMappingIDVertex(String [] MappingIDVertex, String labelVertex){
         // Loop through each vertex in the MappingIDVertex array
         for(int i = 0; i <MappingIDVertex.length; i++){
             // Check if the label of the vertex at index i matches the label we are searching for
-            if (MappingIDVertex[i].equals(labelVertex) == true){
+            if (MappingIDVertex[i].equals(labelVertex)){
                 // If it does, return the index i
                 return i;
             }
@@ -155,7 +160,7 @@ public class Graph {
             // Loop through each edge in the graph
             for(Edge edge : this.edges){
                 // Check if the "from" vertex of the edge matches the current vertex in the MappingIDVertex array
-                if(edge.getFrom().getNumber().equals(MappingIDVertex[i]) == true){
+                if(edge.getFrom().getNumber().equals(MappingIDVertex[i])){
                     // If it matches, add the "to" vertex of the edge to the LinkedList of the current vertex in the AdjacencyMatrix
                     AdjacencyMatrix.get(i).add(InverseMappingIDVertex(MappingIDVertex, edge.getTo().getNumber()));
                 }
@@ -244,6 +249,7 @@ public class Graph {
         }
     }
 
+
     public void computeRanks(){
         int rank = 0;
         ArrayList<Vertex> sourceVertices = new ArrayList<>();
@@ -287,32 +293,11 @@ public class Graph {
             rank++;
         }
 
-        if(!leftVerticesToCheck.isEmpty()){
-            System.out.println("Cycle present in the graph. \n");
-        } else {
-            System.out.println("No cycles detected, ranks were computed correctly. \n");
-        }
-
-
         // Reset the degrees of all the vertices
         computeDegrees();
 
         // sort the vertices list by rank index with ascending order
         Collections.sort(vertices);
-
-        System.out.println("Vertex Rank :");
-        for(Vertex vertex : vertices){
-            System.out.println("vertex : " + vertex.number + "/" + "rank : " + vertex.rank);
-        }
-
-        // Print the vertices for the smallest rank to the biggest
-        //for(int i = 0; i <= rank ; i++){
-            //for(Vertex vertex : vertices){
-                //if(vertex.rank == i){
-                    //System.out.println("Vertex " + vertex.number + " : rank -> " + vertex.rank);
-                //}
-            //}
-        //}
     }
 
 
@@ -344,6 +329,7 @@ public class Graph {
             matrix.add(newRow);
         }
 
+        // Necessary code to make printing to terminal easier.
         StringBuilder strbld = new StringBuilder();
         for (ArrayList<String> strings : matrix) {
             for (int col = 0; col < matrix.get(0).size(); col++) {
@@ -362,29 +348,16 @@ public class Graph {
         return strbld.toString();
     }
 
-    public String displayScheduling(){
-       return "";
-    }
 
     public void computeDates(){
         computePredecessors();
-        System.out.print("\n");
         computeSuccessors();
-        System.out.print("\n");
-        System.out.println("Vertex EarliestDate : ");
         computeDatesPerPredecessors();
-        System.out.print("\n");
-        System.out.println("Vertex LatestDate : ");
-        computeDatesPerSuccesor();
-        System.out.print("\n");
-
-
+        computeDatesPerSuccessor();
     }
 
 
-
-
-    void computePredecessors(){
+    public void computePredecessors(){
         for (Vertex vertex : vertices){
             for(Edge edge : edges){
                 if(edge.to == vertex){
@@ -392,18 +365,10 @@ public class Graph {
                 }
             }
         }
-
-        /*
-        for (Vertex vertex : vertices){
-            System.out.println("vertex number : " + vertex.number);
-            System.out.println(vertex.predecessors);
-            System.out.println("\n");
-        }
-
-         */
     }
 
-    void computeSuccessors(){
+
+    public void computeSuccessors(){
         for (Vertex vertex : vertices){
             for(Edge edge : edges){
                 if(edge.from == vertex){
@@ -411,43 +376,20 @@ public class Graph {
                 }
             }
         }
-
-        /*
-        for (Vertex vertex : vertices){
-            System.out.println("vertex number : " + vertex.number);
-            System.out.println(vertex.successors);
-            System.out.println("\n");
-        }
-
-         */
-
-    }
-
-    public Vertex getVertexByRank(int rank){
-        for(Vertex vertex : vertices){
-            if(vertex.rank == rank){
-                return vertex;
-            }
-        }
-        return null;
     }
 
 
+    public void computeDatesPerPredecessors() {
 
-    void computeDatesPerPredecessors() {
-
-        vertices.get(0).earliestDate = new Couple(0, -1);
-        vertices.get(0).datesPerPredecessors.add(new Couple(0, -1));
+        vertices.get(0).earliestDate = new Couple(0, 0);
+        vertices.get(0).datesPerPredecessors.add(new Couple(0, 0));
 
         for (int i = 1; i <= highestRank; i++) {
             for (Vertex vertex : vertices) {
                 if (vertex.rank == i) {
                     for (Vertex predecessor : vertex.predecessors) {
                         vertex.datesPerPredecessors.add(new Couple(predecessor.earliestDate.duration + predecessor.duration, Integer.parseInt(predecessor.number)));
-
                     }
-                    //System.out.println(vertex.number);
-                    //System.out.println(vertex.datesPerPredecessors);
                     vertex.earliestDate = vertex.datesPerPredecessors.get(0);
                     for (Couple datesPerPredecessor : vertex.datesPerPredecessors) {
                         if (datesPerPredecessor.duration > vertex.earliestDate.duration) {
@@ -458,25 +400,14 @@ public class Graph {
                 }
             }
         }
-
-        for(Vertex vertex : vertices){
-            System.out.println("vertex " + vertex.number + "/" + " date : " + vertex.earliestDate);
-        }
-
-
-
-        System.out.print("\n");
-
-
     }
 
 
-    void computeDatesPerSuccesor(){
+    public void computeDatesPerSuccessor(){
 
         longestDuration =  vertices.get(vertices.size() - 1).earliestDate.duration;
-        System.out.println("longest duration : " + longestDuration);
-        vertices.get(vertices.size() - 1).datesPerSuccessors.add(new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1));
-        vertices.get(vertices.size() - 1).latestDate = new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, -1);
+        vertices.get(vertices.size() - 1).datesPerSuccessors.add(new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, this.vertices.size()-1));
+        vertices.get(vertices.size() - 1).latestDate = new Couple(vertices.get(vertices.size() - 1).earliestDate.duration, this.vertices.size()-1);
 
 
         for (int i = highestRank - 1; i >= 0 ; i--) {
@@ -495,25 +426,68 @@ public class Graph {
                 }
             }
         }
-
-        for(Vertex vertex : vertices){
-            System.out.println("latestDate : " + vertex.latestDate);
-        }
-
     }
 
-    void computeTotalFloats(){
+
+    public void computeTotalFloats(){
         for(Vertex vertex : vertices){
             vertex.totalFloat = vertex.latestDate.duration - vertex.earliestDate.duration;
-            System.out.println("vertex :" + vertex.number + " | " + "total float : " + vertex.totalFloat);
         }
-        System.out.print("\n");
     }
 
-    void displayCriticalPath(){
+
+    public void displayDatesTable(){
+        ArrayList<ArrayList<String>> datesTable = new ArrayList<>();
+        ArrayList<String> features = new ArrayList<>();
+        features.add("Ranks");
+        features.add("Vertex(Duration)");
+        features.add("Predecessors");
+        features.add("Dates per Predecessors");
+        features.add("Earliest Date");
+        features.add("Successors");
+        features.add("Dates per Successors");
+        features.add("Latest Date");
+        features.add("Total Float");
+        datesTable.add(features);
+        for(Vertex vertex : this.vertices){
+            ArrayList<String> vertexInfo = new ArrayList<>();
+            vertexInfo.add(String.valueOf(vertex.rank));
+            vertexInfo.add(vertex.number+"("+vertex.duration+")");
+            vertexInfo.add(String.valueOf(vertex.predecessors));
+            vertexInfo.add(String.valueOf(vertex.datesPerPredecessors));
+            vertexInfo.add(String.valueOf(vertex.earliestDate));
+            vertexInfo.add(String.valueOf(vertex.successors));
+            vertexInfo.add(String.valueOf(vertex.datesPerSuccessors));
+            vertexInfo.add(String.valueOf(vertex.latestDate));
+            vertexInfo.add(String.valueOf(vertex.totalFloat));
+            datesTable.add(vertexInfo);
+        }
+
+        int longestString = 0;
+        for (ArrayList<String> stringArrayList : datesTable) {
+            for (int j = 0; j < datesTable.get(0).size(); j++) {
+                if (stringArrayList.get(j).length() > longestString) {
+                    longestString = stringArrayList.get(j).length();
+                }
+            }
+        }
+        longestString++;
+
+        StringBuilder strbld = new StringBuilder("");
+        for(int col = 0; col < datesTable.get(0).size(); col++){
+            for (ArrayList<String> strings : datesTable) {
+                strbld.append(" ".repeat(Math.max(0, longestString - strings.get(col).length()))).append(strings.get(col));
+            }
+            strbld.append("\n");
+        }
+        System.out.println(strbld);
+    }
+
+
+    public void displayCriticalPath() {
 
         // create a list to store all the critical path of the graph
-        ArrayList<ArrayList> allCriticalPaths = new ArrayList<>();
+        ArrayList<ArrayList<Vertex>> allCriticalPaths = new ArrayList<>();
 
         // create the first critical path
         ArrayList<Vertex> FirstCriticalPath = new ArrayList<>();
@@ -530,20 +504,17 @@ public class Graph {
 
         // do while loop -> will loop if a newpath found is found ( newPathFound is true ) or if a path is list hasn't been updated yet
         do {
-            // initialize netpathfound variable
+            // initialize newpathfound variable
             newCriticalPathFound = false;
 
             // get a path in the paths list according to the index
             ArrayList<Vertex> pathWorkingOn = allCriticalPaths.get(index);
 
-            System.out.println("path working on :" + pathWorkingOn);
-            System.out.println("");
-
             /* here, the algorithm is the following :
             we loop on all the vertex in the graph
             if the vertex is equal to the last vertex of the current path, for example : we have the path 1 -> 2 -> 3
             then the vertex should be 3
-            then, if the vertex total float is equals to 0, ie it belong to a critical path, we loop on all the edges
+            then, if the vertex total float is equals to 0, ie it belongs to a critical path, we loop on all the edges
             of the graph and check for edges whose start on this vertex and has a "to vertex " with a total float of 0.
             If we found one, then we check if the current path contains the "from vertex" of the edge, and if it's the
             case we add the "to vertex " to the current critical path the algorithm is working on.
@@ -561,7 +532,7 @@ public class Graph {
             1 -> 2 = 1
             1 -> 3 = 1
 
-            ( In our programm, we are storing the edges exaxctly as above, so in a list which is sorted by the name of
+            ( In our program, we are storing the edges exactly as above, so in a list which is sorted by the name of
             the vertex )
 
             In this graph, the total float of is equal to 0 for all the vertex. So the edge 1 -> 3 is selected,
@@ -583,98 +554,56 @@ public class Graph {
             critical path can be found from this path.
 
             At the end, we have our paths ( or one path ). There are not really critical path because a critical
-            path should be the longest path, and thats not the case for all path that contain vertex with a total
-            float equals to 0. We already store the longestDuration in a preivous algorithm, so we just need to check
+            path should be the longest path, and that's not the case for all path that contain vertex with a total
+            float equals to 0. We already store the longestDuration in a previous algorithm, so we just need to check
             for all our path if the sum of the duration of their vertex is equal to the longestDuration. If this is the
             case, then it is a critical path and we can then display it.
 
              */
 
-
-
-            for(Vertex vertex : vertices) {
-                if(vertex == pathWorkingOn.get(pathWorkingOn.size() - 1)){
-                    System.out.println("patjworlingon :" + pathWorkingOn);
-                    System.out.println("last vertex ? : " +  pathWorkingOn.get(pathWorkingOn.size() - 1));
-                    System.out.println("");
+            for (Vertex vertex : vertices) {
+                if (vertex == pathWorkingOn.get(pathWorkingOn.size() - 1)) {
                     if (vertex.totalFloat == 0) { //
                         Edge LastEdgeChecked = null;
                         for (Edge edge : edges) {
-                            System.out.println(edge);
                             if (edge.from.equals(vertex) && edge.to.totalFloat == 0) {
                                 if (LastEdgeChecked != null && LastEdgeChecked.from == edge.from) {
-                                    System.out.println("actuel edge : " + edge);
-                                    System.out.println("fromEdgeAlreadySeen : " + LastEdgeChecked);
                                     ArrayList<Vertex> newPath = new ArrayList<>(pathWorkingOn);
                                     newPath.remove(newPath.size() - 1);
-                                    System.out.println("pathWorkingOn : " + pathWorkingOn);
                                     newPath.add(edge.to);
-                                    System.out.println("newpath : " + newPath);
-                                    System.out.println("-------");
                                     allCriticalPaths.add(newPath);
                                     newCriticalPathFound = true;
 
-                                }else if (pathWorkingOn.contains(edge.from)) {
-                                        System.out.println("vertex to add : " + edge.to);
-                                        pathWorkingOn.add(edge.to);
-                                    }
-
-                                LastEdgeChecked = edge;
-
+                                } else if (pathWorkingOn.contains(edge.from)) {
+                                    pathWorkingOn.add(edge.to);
                                 }
-
+                                LastEdgeChecked = edge;
+                            }
                         }
                     }
                 }
             }
-
-            //System.out.println("all critical path : " + allCriticalPaths);
-
             index++;
 
-        }while (newCriticalPathFound || index != allCriticalPaths.size());
+        } while (newCriticalPathFound || index != allCriticalPaths.size());
 
-        /*
-        for(ArrayList path : allCriticalPaths){
-            for(Vertex vertex : path){
-                System.out.println(vertex);
-            }
-        }
-
-         */
-
-        System.out.println("Critical path : ");
-        for(ArrayList<Vertex> critical_path : allCriticalPaths){
+        System.out.println("Critical path(s) : ");
+        for (ArrayList<Vertex> critical_path : allCriticalPaths) {
             int sum = 0;
-            for(Vertex vertex : critical_path){
+            for (Vertex vertex : critical_path) {
                 sum += vertex.duration;
             }
-            if(sum == longestDuration){
-
-                for(Vertex vertex : critical_path){
+            if (sum == longestDuration) {
+                for (Vertex vertex : critical_path) {
                     System.out.print(vertex.number);
-                    if(vertex != vertices.get(vertices.size() - 1)){
+                    if (vertex != vertices.get(vertices.size() - 1)) {
                         System.out.print(" -> ");
                     }
                 }
-                System.out.println("");
-
+                System.out.print("\n");
             }
         }
-
-        /*
-        System.out.print("critical path(s) after calculation: ");
-        System.out.println(allCriticalPaths);
-
-         */
-
-
-
-
-        }
-
-
-
     }
+}
 
 
