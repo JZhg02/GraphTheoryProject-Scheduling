@@ -8,16 +8,6 @@ public class Main {
 
         Main project = new Main();
         project.Menu();
-
-        // TODO
-        // check if earliest and latest works : OK
-        // implements total float : OK
-        // implement computing critical path : OK but need to be check on multiple path
-        // verify if everything work on testing on graph
-        // change the display as in the project pdf
-        // menu : bug when asking again for file number -> take the previous input
-
-
     }
 
 
