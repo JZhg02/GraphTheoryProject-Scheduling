@@ -28,4 +28,5 @@ The program should be able to import any constraint table constructed in the spe
 - 9 5 4
 - 10 1 2 3
 - 11 2 1 5 6 7 8
+
 The N tasks are numbered from 1 to N. The fictitious task a will be denoted as 0. The fictitious task w will be numbered N+1.
