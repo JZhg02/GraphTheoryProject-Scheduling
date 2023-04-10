@@ -17,15 +17,15 @@ Features
 
 Constraints
 The program should be able to import any constraint table constructed in the specified format. Here is an example of the format:
-1 9
-2 2
-3 3 2
-4 5 1
-5 2 1 4
-6 2 5
-7 2 4
-8 4 4 5
-9 5 4
-10 1 2 3
-11 2 1 5 6 7 8
+- 1 9
+- 2 2
+- 3 3 2
+- 4 5 1
+- 5 2 1 4
+- 6 2 5
+- 7 2 4
+- 8 4 4 5
+- 9 5 4
+- 10 1 2 3
+- 11 2 1 5 6 7 8
 The N tasks are numbered from 1 to N. The fictitious task a will be denoted as 0. The fictitious task w will be numbered N+1.
